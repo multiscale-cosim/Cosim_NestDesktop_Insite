@@ -67,7 +67,7 @@ They allow independant scaling of the components and efficient simulations. Depl
 
 ### Installation ###
 
-Please check [HERE](https://github.com/multiscale-cosim/TVB-NEST-usecase1/blob/main/INSTALL.md) for installation details.
+Please check [HERE](https://github.com/multiscale-cosim/Cosim_NestDesktop_Insite/blob/main/INSTALL.md) for installation details.
 
 
 ### How to run ###
