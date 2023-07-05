@@ -73,12 +73,17 @@ Please check [HERE](https://github.com/multiscale-cosim/Cosim_NestDesktop_Insite
 ### How to run ###
  
  The framework and usecase can be installed and launched on:
-- **Local systems:** go to [run_usecase/local](https://github.com/multiscale-cosim/TVB-NEST-usecase1/tree/hpc/run_usecase/local) directory and run [this](https://github.com/multiscale-cosim/TVB-NEST-usecase1/blob/hpc/run_usecase/local/cosim_launch_local_dev.sh) script from there e.g.
+- **Local systems:**
+  - go to [run_usecase/local](https://github.com/multiscale-cosim/TVB-NEST-usecase1/tree/hpc/run_usecase/local) directory and run [this](https://github.com/multiscale-cosim/TVB-NEST-usecase1/blob/hpc/run_usecase/local/cosim_launch_local_dev.sh) script from there e.g.
 
   ```
-  $ sh ./cosim_launch_local.sh
+  $ sh ./cosim_launch_local_dev.sh
   ```
-
+  - On the VM (see Installation guide above) you will find two scripts in `/home/vagrant/multiscale-cosim`:
+    ```
+    vagrant@ubuntu-focal:~multiscale-cosim$ source Cosim_NestDesktop_Insite.source
+    vagrant@ubuntu-focal:~multiscale-cosim$ ./run_on_loacl.sh
+    ```
 - **HPC systems:** To execute the usecase on HPC systems, go to [run_usecase/hpc](https://github.com/multiscale-cosim/TVB-NEST-usecase1/tree/hpc/run_usecase/hpc) directory. The usecase can be deployed and executed within an interactive session or could also be submitted as a SLURM job. 
 
   - Interactive session: first allocate the required resources by specifying the cluster partition and account e.g:
