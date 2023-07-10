@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #
-# USAGE: 
+# USAGE:
 #   a) using defaults <BASELINEPATH>=${HOME} <GITUSERNAME>=multiscale-cosim
 #           sh ./TVB_NEST-usecase1_ubuntu_setting_up.sh
-#    
-#   b) specifiying the parameters   
+#
+#   b) specifiying the parameters
 #        sh ./TVB_NEST_usecase1_ubuntu_setting_up.sh <BASELINEPATH> <GITUSERNAME>
-#       e.g. 
+#       e.g.
 #           ./TVB_NEST_usace1_ubuntu_setting_up.sh /opt/MY_COSIM sontheimer
 
 BASELINE_PATH="/home/vagrant"
@@ -50,7 +50,7 @@ sudo apt install -y build-essential cmake git python3 python3-pip
 # STEP 2.2 - packages used by NEST, TVB and the use-case per se
 sudo apt install -y doxygen
 sudo apt install -y libboost-all-dev libgsl-dev libltdl-dev \
-                    libncurses-dev libreadline-dev 
+                    libncurses-dev libreadline-dev
 sudo apt install -y mpich
 
 #
@@ -62,7 +62,13 @@ sudo apt install -y mpich
 #  2            /usr/bin/mpirun.openmpi   50        manual mode
 echo "1" | sudo update-alternatives --config mpi 1>/dev/null 2>&1 # --> choosing mpich
 echo "1" | sudo update-alternatives --config mpirun 1>/dev/null 2>&1 # --> choosing mpirun
- 
+
+#
+# STEP 2.4 - install NEST Desktop (and dependencies for NEST Server)
+#
+sudo python3 -m pip install nest-desktop==3.2
+# sudo python3 -m pip install restrictedPython gunicorn flask flask-cors
+
 #
 # STEP 3 - install python packages for the TVB-NEST use-case
 #
@@ -74,14 +80,14 @@ pip install --no-cache --target=${CO_SIM_SITE_PACKAGES} \
         tvb-contrib==2.2 tvb-data==2.0 tvb-gdist==2.1 tvb-library==2.2 \
         cython elephant mpi4py numpy==1.23 pyzmq requests testresources
 
-# 
+#
 # STEP 5 - cloning github repos
 #
 git clone --recurse-submodules --jobs 4 https://github.com/${GIT_DEFAULT_NAME}/Cosim_NestDesktop_Insite.git
 
 #
 # STEP 6 - NEST compilation
-# International Neuroinformatics Coordinating Facility (INCF) 
+# International Neuroinformatics Coordinating Facility (INCF)
 # https://github.com/INCF/MUSIC
 # https://github.com/INCF/libneurosim
 
@@ -116,7 +122,7 @@ cd ${CO_SIM_ROOT_PATH}
 rm -f ${CO_SIM_SITE_PACKAGES}/typing.py
 #
 # proper versions to be used by TVB
-# removing (force) the installed versions 
+# removing (force) the installed versions
 # __? rm -Rf ${CO_SIM_SITE_PACKAGES}/numpy
 # __? rm -Rf ${CO_SIM_SITE_PACKAGES}/gdist
 # __? pip install --target=${CO_SIM_SITE_PACKAGES} --upgrade --no-deps --force-reinstall --no-cache matplotlib numpy==1.21
@@ -159,8 +165,8 @@ export PYTHONPATH=${CO_SIM_MODULES_ROOT_PATH}:${CO_SIM_SITE_PACKAGES}:${NEST_PYT
 export PATH=${CO_SIM_NEST}/bin:${PATH}
 .EOSF
 
-# 
-# STEP 9 - Generating the run_on_local.sh  
+#
+# STEP 9 - Generating the run_on_local.sh
 cat <<.EORF > ${CO_SIM_ROOT_PATH}/run_on_local.sh
 
 # checking for already set CO_SIM_* env variables
