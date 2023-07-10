@@ -39,6 +39,7 @@ cd ${CO_SIM_ROOT_PATH}
 CO_SIM_SITE_PACKAGES=${CO_SIM_ROOT_PATH}/site-packages
 CO_SIM_NEST_BUILD=${CO_SIM_ROOT_PATH}/nest-build
 CO_SIM_NEST=${CO_SIM_ROOT_PATH}/nest
+CO_SIM_INSITE=${CO_SIM_ROOT_PATH}/insite
 
 #
 # STEP 2 - installing linux packages
@@ -204,6 +205,24 @@ for co_sim_PID in \`ps aux | grep Cosim_NestDesktop_Insite | sed 's/user//g' | s
 .EOKF
 
 #
-# STEP 10 - THIS IS THE END!
+# STEP 10 - Install Insite
+sudo apt-get install libssl-dev
+mkdir -p $CO_SIM_INSITE
+cd $CO_SIM_INSITE
+git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
+
+cd insite
+git checkout feature/cosim_compat
+
+mkdir build_access_node
+cd build_access_node
+cmake ../access-node -DBUILD_SHARED_LIBS=OFF
+make -j 3
+
+cd ..
+mkdir build_nest_module
+cd build_nest_module
+cmake -Dwith-nest=/home/vagrant/multiscale-cosim/nest/bin/nest-config ../nest-module/src -DSPDLOG_INSTALL=ON
+make -j 3 install
 #
 echo "SETUP DONE!"
