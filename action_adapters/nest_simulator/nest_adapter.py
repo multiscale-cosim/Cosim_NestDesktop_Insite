@@ -19,7 +19,7 @@ import ast
 
 from mpi4py import MPI
 
-from common.utils.security_utils import check_integrity
+from EBRAINS_Launcher.common.utils.security_utils import check_integrity
 from action_adapters_alphabrunel.resource_usage_monitor_adapter import ResourceMonitorAdapter
 
 from action_adapters_alphabrunel.nest_simulator.utils_function import get_data
