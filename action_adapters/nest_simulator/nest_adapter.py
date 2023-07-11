@@ -20,10 +20,10 @@ import ast
 from mpi4py import MPI
 
 from EBRAINS_Launcher.common.utils.security_utils import check_integrity
-from action_adapters_alphabrunel.resource_usage_monitor_adapter import ResourceMonitorAdapter
+from action_adapters.resource_usage_monitor_adapter import ResourceMonitorAdapter
 
-from action_adapters_alphabrunel.nest_simulator.utils_function import get_data
-from action_adapters_alphabrunel.parameters import Parameters
+from action_adapters.nest_simulator.utils_function import get_data
+from action_adapters.parameters import Parameters
 from EBRAINS_RichEndpoint.application_companion.common_enums import SteeringCommands, COMMANDS
 from EBRAINS_RichEndpoint.application_companion.common_enums import INTEGRATED_SIMULATOR_APPLICATION as SIMULATOR
 from EBRAINS_RichEndpoint.application_companion.common_enums import INTEGRATED_INTERSCALEHUB_APPLICATION as INTERSCALE_HUB

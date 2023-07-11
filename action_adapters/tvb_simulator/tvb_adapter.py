@@ -18,9 +18,9 @@ import pickle
 import base64
 import ast
 
-from action_adapters_alphabrunel.tvb_simulator.wrapper_TVB_mpi import TVBMpiWrapper
-from action_adapters_alphabrunel.parameters import Parameters
-from action_adapters_alphabrunel.resource_usage_monitor_adapter import ResourceMonitorAdapter
+from action_adapters.tvb_simulator.wrapper_TVB_mpi import TVBMpiWrapper
+from action_adapters.parameters import Parameters
+from action_adapters.resource_usage_monitor_adapter import ResourceMonitorAdapter
 from EBRAINS_Launcher.common.utils.security_utils import check_integrity
 
 from EBRAINS_RichEndpoint.application_companion.common_enums import SteeringCommands, COMMANDS

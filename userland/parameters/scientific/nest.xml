@@ -2,12 +2,12 @@
 <parameters>
         <title>NEST Parameters</title>
         <description>Scientific Parameters for the NEST Simulation Model</description>
-        <nb_neurons datatype="int">10000</nb_neurons>
+        <nb_neurons datatype="int">100</nb_neurons>
         <resolution datatype="float">0.1</resolution>
         <nodes_model model="iaf_psc_alpha">
             <!-- https://nest-simulator.readthedocs.io/en/v3.3/models/iaf_psc_alpha.html -->
 
-            <total_inhibitory_nodes datatype="int">2500</total_inhibitory_nodes>
+            <total_inhibitory_nodes datatype="int">25</total_inhibitory_nodes>
             <params datatype="dictionary">
                 <V_m datatype="float">0.0</V_m>
                 <E_L datatype="float">0.0</E_L>
