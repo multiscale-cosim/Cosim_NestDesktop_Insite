@@ -206,7 +206,7 @@ for co_sim_PID in \`ps aux | grep Cosim_NestDesktop_Insite | sed 's/user//g' | s
 
 #
 # STEP 10 - Install Insite
-sudo apt-get install libssl-dev
+sudo apt-get install -y libssl-dev
 mkdir -p $CO_SIM_INSITE
 cd $CO_SIM_INSITE
 git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
