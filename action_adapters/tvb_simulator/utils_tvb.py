@@ -1,7 +1,7 @@
 import os
 import shutil
 import logging
-from common.utils import directory_utils
+from EBRAINS_Launcher.common.utils import directory_utils
 
 
 def create_logger(path, name, log_level):
