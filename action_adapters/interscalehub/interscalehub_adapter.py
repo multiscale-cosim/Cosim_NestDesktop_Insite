@@ -20,8 +20,8 @@ import ast
 from mpi4py import MPI
 
 from EBRAINS_Launcher.common.utils.security_utils import check_integrity
-from action_adapters_alphabrunel.setup_result_directories import SetupResultDirectories
-from action_adapters_alphabrunel.resource_usage_monitor_adapter import ResourceMonitorAdapter
+from action_adapters.setup_result_directories import SetupResultDirectories
+from action_adapters.resource_usage_monitor_adapter import ResourceMonitorAdapter
 
 from EBRAINS_InterscaleHUB.Interscale_hub.manager_nest_to_tvb import NestToTvbManager
 from EBRAINS_InterscaleHUB.Interscale_hub.manager_tvb_to_nest import TvbToNestManager
