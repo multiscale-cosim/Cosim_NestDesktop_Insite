@@ -48,7 +48,7 @@ nest.Connect(nodes_in[:25], ispikes)
 # Co-Simulation Devices
 
 input_to_simulator = nest.Create('spike_generator', nb_neurons, params={"stimulus_source": "mpi", "label": "/../transformation/spike_generator"})
-output_from_simulator = nest.Create('spike_detector', 1, params={"record_to": "mpi", "label": "/../transformation/spike_detector"})
+output_from_simulator = nest.Create('spike_recorder', 1, params={"record_to": "mpi", "label": "/../transformation/spike_recorder"})
 
 nest.Connect(input_to_simulator, nodes_ex, conn_spec="one_to_one", syn_spec={"weight": 20.7, "delay": 0.1})
 nest.Connect(nodes_ex, output_from_simulator, conn_spec="all_to_all")
