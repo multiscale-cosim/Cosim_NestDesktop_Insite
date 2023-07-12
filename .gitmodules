@@ -20,5 +20,5 @@
 	branch = main
 [submodule "nest-simulator"]
 	path = nest-simulator
-	url = https://github.com/VRGroupRWTH/nest-simulator.git
-	branch = feature/device_label	
+	url = https://github.com/nest/nest-simulator.git
+	branch = master	
