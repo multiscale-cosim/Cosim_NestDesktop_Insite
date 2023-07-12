@@ -43,8 +43,14 @@
             <var_008>
                 <!-- where the co_sim_comm_ports.xml configuration file is located -->
                 <var_name>CO_SIM_COMMUNICATION_SETTINGS_PATH</var_name>
-		<var_value>{CO_SIM_MODULES_ROOT_PATH}/EBRAINS_WorkflowConfigurations/general</var_value>
+		        <var_value>{CO_SIM_MODULES_ROOT_PATH}/EBRAINS_WorkflowConfigurations/general</var_value>
             </var_008>
+            <var_009>
+                <!-- where the co_sim_comm_ports.xml configuration file is located -->
+                <var_name>CO_SIM_APP_SERVER_PATH</var_name>
+		        <var_value>{CO_SIM_MODULES_ROOT_PATH}/EBRAINS_Launcher/servers</var_value>
+            </var_009>
+            
         </variables>
         <parameters>
             <!-- functional parameters specific to this (current) action plan -->
@@ -103,11 +109,14 @@
             -->
 
             <!-- initialization stage -->
-            <!-- <action_000>
+            <action_000>
                 <action_type>CO_SIM_ACTION</action_type>
-                <action_xml>initial_spikes_generator.xml</action_xml>
+                <action_goal>CO_SIM_</action_goal>
+                <action_realm>APP_SERVER</action_realm>
+                <action_label>APP_SERVER</action_label>
+                <action_xml>co_sim_app_server.xml</action_xml>
                 <action_launch_method>CO_SIM_SEQUENTIAL_ACTION</action_launch_method>
-            </action_000> -->
+            </action_000>
 
             <!-- <action_002> -->
                 <!-- waiting until the preceding action finishes -->
