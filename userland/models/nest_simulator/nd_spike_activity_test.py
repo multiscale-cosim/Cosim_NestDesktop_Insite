@@ -1,35 +1,36 @@
 import numpy
 
-def configure_nest(nest):
-
+def configure_nest(nest, addresses):
   nest.ResetKernel()
 
   # Set simulation kernel
   nest.SetKernelStatus({
+    # "data_path": "",
     "local_num_threads": 1,
     "resolution": 0.1,
-    "rng_seed": 1
+    "rng_seed": 1,
   })
 
   # Create nodes
-  pg1 = nest.Create("poisson_generator", 1, params={
-    "rate": 6500,
-  })
-  n1 = nest.Create("iaf_psc_alpha", 100)
-  sr1 = nest.Create("spike_recorder", 1)
+  n1 = nest.Create("iaf_psc_alpha", 1)
+  n2 = nest.Create("iaf_psc_alpha", 1)
 
   # Connect nodes
-  nest.Connect(pg1, n1, syn_spec={ 
-    "weight": 10,
-  })
-  nest.Connect(n1, sr1)
+  nest.Connect(n1, n2)
 
-  input_to_simulator = []
-  output_from_simulator = []
+  input_stimulator = nest.Create("spike_generator", params={
+    "mpi_address": addresses['stimulus_source'],
+    "stimulus_source": "mpi",
+  })
+  nest.Connect(input_stimulator, n1)
+
+  output_recorder = nest.Create("spike_recorder", params={
+    "mpi_address": addresses['record_to'],
+    "record_to": "mpi",
+  })
+  nest.Connect(n2, output_recorder)
 
   # Prepare simulation
   nest.Prepare()
 
-  return input_to_simulator, output_from_simulator
-
-
+  return input_stimulator, output_recorder 

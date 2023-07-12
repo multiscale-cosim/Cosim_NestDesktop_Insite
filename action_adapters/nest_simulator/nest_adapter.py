@@ -104,7 +104,7 @@ class NESTAdapter:
                     DATA_EXCHANGE_DIRECTION.NEST_TO_TVB.name:
                 # get mpi port name
                 self.__interscalehub_nest_to_tvb_address =\
-                    "endpoint_address:"+interscalehub.get(
+                    interscalehub.get(
                         INTERSCALE_HUB.MPI_CONNECTION_INFO.name)
                 self.__logger.debug("Interscalehub_nest_to_tvb_address: "
                                     f"{self.__interscalehub_nest_to_tvb_address}")
@@ -115,167 +115,30 @@ class NESTAdapter:
                     DATA_EXCHANGE_DIRECTION.TVB_TO_NEST.name:
                 # get mpi port name
                 self.__interscalehub_tvb_to_nest_address =\
-                    "endpoint_address:"+interscalehub.get(
+                    interscalehub.get(
                         INTERSCALE_HUB.MPI_CONNECTION_INFO.name)
                 self.__logger.debug("Interscalehub_tvb_to_nest_address: "
                                     f"{self.__interscalehub_tvb_to_nest_address}")
 
-    def __configure_nest(self, simulator):
-        """
-        configure NEST before the simulation
-        modify example of https://simulator.simulator.readthedocs.io/en/stable/_downloads/482ad6e1da8dc084323e0a9fe6b2c7d1/brunel_alpha_simulator.py
-        :param simulator: nest simulator
-        :return:
-        """
-
-        # create the neurons and the devices
-        # neuron_params = self.__parameters.neuron_params
-        nodes_ex = simulator.Create(
-            model=self.__sci_params.nodes_model['model'],
-            n=self.__sci_params.nb_neurons,
-            params=self.__sci_params.nodes_model['params'])
-
-        nodes_in = simulator.Create(
-            model=self.__sci_params.nodes_model['model'],
-            n=self.__sci_params.nodes_model['total_inhibitory_nodes'],
-            params=self.__sci_params.nodes_model['params'])
-
-        #
-        # noise poisson_generator
-        #
-        noise = simulator.Create(model=self.__sci_params.noise_model['model'],
-                                 params=self.__sci_params.noise_model['params'])
-
-        #
-        # Spikes' Models
-        #
-        espikes = simulator.Create(self.__sci_params.spike_recorder_device)
-        ispikes = simulator.Create(self.__sci_params.spike_recorder_device)
-
-        espikes.set(label=self.__sci_params.excitatory_spikes_model['model'],
-                    record_to=self.__sci_params.excitatory_spikes_model['record_to'])
-        ispikes.set(label=self.__sci_params.inhibitory_spikes_model['model'],
-                    record_to=self.__sci_params.inhibitory_spikes_model['record_to'])
-
-        #
-        # Creating the connection
-        # simulator.CopyModel("static_synapse", "excitatory", {"weight":  20.68015524367846, "delay": 1.5})
-        simulator.CopyModel(
-            existing=self.__sci_params.predefined_synapse,
-            new=self.__sci_params.excitatory_model['synapse'],
-            params=self.__sci_params.excitatory_model['params'])
-        # simulator.CopyModel("static_synapse", "inhibitory", {"weight": -103.4007762183923, "delay": 1.5})
-        simulator.CopyModel(
-            existing=self.__sci_params.predefined_synapse,
-            new=self.__sci_params.inhibitory_model['synapse'],
-            params=self.__sci_params.inhibitory_model['params'])
-
-        # conn_params_ex = {'rule': 'fixed_indegree', 'indegree': 10}
-        # conn_params_in = {'rule': 'fixed_indegree', 'indegree': 2}
-        simulator.Connect(pre=nodes_ex,
-                          post=nodes_ex + nodes_in,
-                          conn_spec=self.__sci_params.excitatory_connection['params'],
-                          syn_spec=self.__sci_params.excitatory_connection['syn_spec'])
-        simulator.Connect(pre=nodes_in,
-                          post=nodes_ex + nodes_in,
-                          conn_spec=self.__sci_params.inhibitory_connection['params'],
-                          syn_spec=self.__sci_params.inhibitory_connection['syn_spec'])
-
-        # simulator.Connect(noise, nodes_ex, syn_spec="excitatory")
-        simulator.Connect(
-            pre=noise,
-            post=nodes_ex,
-            syn_spec=self.__sci_params.excitatory_model['synapse'])
-
-        # simulator.Connect(noise, nodes_in, syn_spec="excitatory")
-        simulator.Connect(
-            pre=noise,
-            post=nodes_in,
-            syn_spec=self.__sci_params.excitatory_model['synapse'])  # is the usage of 'excitatory' OK?
-
-        # simulator.Connect(nodes_ex[:50], espikes, syn_spec="excitatory")
-        simulator.Connect(
-            pre=nodes_ex[:50],
-            # pre=nodes_ex,
-            post=espikes,
-            syn_spec=self.__sci_params.excitatory_model['synapse'])
-
-        # simulator.Connect(nodes_in[:25], ispikes, syn_spec="excitatory")
-        simulator.Connect(
-            pre=nodes_in[:25],
-            # pre=nodes_in,
-            post=ispikes,
-            syn_spec=self.__sci_params.excitatory_model['synapse'])
-
-        # conn_params_ex = self.__parameters.connection_param_ex
-        # conn_params_in = self.__parameters.connection_param_in
-        simulator.Connect(
-            nodes_ex,
-            nodes_ex + nodes_in,
-            conn_spec=self.__sci_params.excitatory_connection['params'],
-            syn_spec=self.__sci_params.excitatory_connection['syn_spec'])
-        simulator.Connect(
-            nodes_in,
-            nodes_ex + nodes_in,
-            conn_spec=self.__sci_params.inhibitory_connection['params'],
-            syn_spec=self.__sci_params.inhibitory_connection['syn_spec'])
-
-        # Co-Simulation Devices
-        # input_to_simulator = simulator.Create("spike_generator", self.__parameters.nb_neurons,
-        #                                       params={'stimulus_source': 'mpi',
-        #                                               'label': '/../transformation/spike_generator'})
-        input_to_simulator = simulator.Create(model=self.__sci_params.input_to_simulator['model'],
-                                              n=self.__sci_params.nb_neurons,
-                                              params={'stimulus_source': 'mpi',
-                                                      'label': self.__interscalehub_tvb_to_nest_address})
-        # output_from_simulator = simulator.Create("spike_recorder",
-        #                                          params={"record_to": "mpi",
-        #                                                  'label': '/../transformation/spike_detector'})
-        output_from_simulator = simulator.Create("spike_recorder",
-                                                 params={"record_to": "mpi",
-                                                         'label': self.__interscalehub_nest_to_tvb_address})
-        
-        # simulator.Connect(input_to_simulator, nodes_ex, {'rule': 'one_to_one'},
-        #                   {"weight": 20.68015524367846, "delay": 0.1})
-        simulator.Connect(pre=input_to_simulator,
-                          post=nodes_ex,
-                          conn_spec=self.__sci_params.input_to_simulator['conn_spec'],
-                          syn_spec=self.__sci_params.input_to_simulator['syn_spec'])
-        # simulator.Connect(nodes_ex, output_from_simulator, {'rule': 'all_to_all'},
-        #                   {"weight": 1.0, "delay": 0.1})
-        simulator.Connect(pre=nodes_ex,
-                          post=output_from_simulator,
-                          conn_spec=self.__sci_params.output_from_simulator['conn_spec'],
-                          syn_spec=self.__sci_params.output_from_simulator['syn_spec'])
-
-        # return espikes, input_to_simulator, output_from_simulator
-        self.__logger.debug(f"espikes: {espikes}, spike_generator: {input_to_simulator}, spike_detector: {output_from_simulator}")
-        
-        for node in output_from_simulator:
-            self.__list_spike_detector.append(node.tolist())
-        self.__logger.debug(f"first spike_detector: {self.__list_spike_detector[0]}")
-        self.__logger.debug("simulation is configured")
-
     def execute_init_command(self):
         self.__logger.debug("executing INIT command")
-        nest.ResetKernel()
-        # nest.local_num_threads = 96
-        nest.SetKernelStatus(
-            {"data_path": self.__parameters.path + '/nest/',
-             "overwrite_files": True, "print_time": True,
-             "resolution": self.__parameters.resolution})
-
-        self.__logger.info("configure the network")
-        # espikes, input_to_simulator, output_from_simulator = self.__configure_nest(nest)
-        self.__configure_nest(nest)
-
-        self.__log_message("preparing the simulator, and "
-                           "establishing the connections")
-        nest.Prepare()
-        self.__log_message("connections are made")
-        self.__logger.debug("INIT command is executed")
-        return self.__parameters.time_synch, self.__list_spike_detector[0]   # minimum step size for simulation
-    
+        # NOTE: dict a --> KernelStatus
+        #nest.ResetKernel()
+        #nest.SetKernelStatus({"data_path": self.__parameters.path + '/nest/',
+        #     "overwrite_files": True, "print_time": True,
+        #     "resolution": self.__parameters.resolution}
+        #   )
+        self.__log_message(f"init -- loading nest configuration from NEST Desktop")
+        # NOTE: dict b --> network addresses
+        addresses = {"record_to": self.__interscalehub_nest_to_tvb_address,
+                     "stimulus_source":self.__interscalehub_tvb_to_nest_address}
+        # NOTE: import dependent on scriptname from Nest Desktop
+        from userland.models.nest_simulator.nd_spike_activity_test import configure_nest
+        self.__nest_spike_generator, self.__nest_spike_recorder = \
+            configure_nest(nest, addresses)
+        # NOTE: time_synch from 'setup_result_directories.py'
+        return self.__parameters.time_synch, self.__nest_spike_recorder.tolist()
+        
     def execute_start_command(self, global_minimum_step_size):
         self.__logger.debug("executing START command")
         if self.__is_monitoring_enabled:
@@ -289,8 +152,6 @@ class NESTAdapter:
             self.__log_message(f"simulation run counter: {count}")
             nest.Run(global_minimum_step_size)
             # nest.Run(self.__parameters.time_synch)
-            
-
         self.__log_message('nest simulation is finished')
         self.__log_message("cleaning up NEST")
         nest.Cleanup()
@@ -350,7 +211,7 @@ if __name__ == "__main__":
             sci_params_xml_path_filename=p_sci_params_xml_path_filename)
 
         # 4. execute 'INIT' command which is implicit with when laucnhed
-        local_minimum_step_size, list_spike_detector = nest_adapter.execute_init_command()
+        local_minimum_step_size, nest_spike_recorder = nest_adapter.execute_init_command()
 
         # 5. send the pid and the local minimum step size to Application Manager
         # as a response to 'INIT' as per protocol
@@ -365,7 +226,7 @@ if __name__ == "__main__":
                 {SIMULATOR.PID.name: nest_adapter.pid,
                 #SIMULATOR.PID.name: os.getpid(),
                 SIMULATOR.LOCAL_MINIMUM_STEP_SIZE.name: local_minimum_step_size,
-                SIMULATOR.SPIKE_DETECTORS.name: list_spike_detector,
+                SIMULATOR.SPIKE_DETECTORS.name: nest_spike_recorder,
                 }
         
             # send the response
