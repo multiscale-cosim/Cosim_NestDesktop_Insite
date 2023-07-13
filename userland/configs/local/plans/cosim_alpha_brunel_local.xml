@@ -26,7 +26,7 @@
             <var_003>
                 <var_name>CO_SIM_ACTIONS_PATH</var_name>
                 <!-- The Co-Simulator will get the ${CO_SIM_TVB_NEST_PATH} value on run-time -->
-		<var_value>{CO_SIM_MODULES_ROOT_PATH}/EBRAINS_WorkflowConfigurations/usecase/local/actions</var_value>
+		<var_value>{CO_SIM_USE_CASE_ROOT_PATH}/userland/configs/local/actions</var_value>
             </var_003>
             <var_004>
                 <var_name>CO_SIM_ROUTINES_PATH</var_name>
@@ -109,20 +109,20 @@
             -->
 
             <!-- initialization stage -->
-            <action_000>
+            <!-- <action_000>
                 <action_type>CO_SIM_ACTION</action_type>
-                <action_goal>CO_SIM_</action_goal>
+                <action_goal>CO_SIM_APP_SERVER</action_goal>
                 <action_realm>APP_SERVER</action_realm>
                 <action_label>APP_SERVER</action_label>
                 <action_xml>co_sim_app_server.xml</action_xml>
                 <action_launch_method>CO_SIM_SEQUENTIAL_ACTION</action_launch_method>
-            </action_000>
+            </action_000> -->
 
             <!-- <action_002> -->
                 <!-- waiting until the preceding action finishes -->
-                <!-- <action_type>CO_SIM_EVENT</action_type> -->
-                <!-- <action_event>CO_SIM_WAIT_FOR_SEQUENTIAL_ACTIONS</action_event> -->
-            <!-- </action_002> -->
+                <!-- <action_type>CO_SIM_EVENT</action_type>
+                <action_event>CO_SIM_WAIT_FOR_SEQUENTIAL_ACTIONS</action_event>
+            </action_002> -->
 
             <!-- main plan action proceeding -->
             <action_004>

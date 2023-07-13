@@ -11,8 +11,8 @@
         </variables>
         <parameters>
             <par_001>
-                <par_name>__no_parameter_name__</par_name>
-                <par_value>__no_parameter_name__</par_value>
+                <par_name>CO_SIM_SCIENTIFIC_PARAMETERS</par_name>
+                <par_value>{CO_SIM_EMPTY}</par_value>
             </par_001>
         </parameters>
         <action>
@@ -22,7 +22,8 @@
                     <argv_01_option>app_server:app</argv_01_option>
                     <argv_01_value>{CO_SIM_EMPTY}</argv_01_value>
                     <argv_02_option>--bind</argv_02_option>
-                    <argv_02_value>{CO_SIM_APP_SERVER_ADDRESS}</argv_02_value>
+                    <!-- <argv_02_value>{CO_SIM_APP_SERVER_ADDRESS}</argv_02_value> -->
+                    <argv_02_value>127.0.0.1:52428</argv_02_value>
                 </launcher_arguments>
             </launcher>
             <performer>
