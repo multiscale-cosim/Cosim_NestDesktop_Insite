@@ -79,7 +79,8 @@ sudo python3 -m pip install nest-desktop==3.2
 # NOTE: Specific versions are required for some packages
 pip install --no-cache --target=${CO_SIM_SITE_PACKAGES} \
         tvb-contrib==2.2 tvb-data==2.0 tvb-gdist==2.1 tvb-library==2.2 \
-        cython elephant mpi4py numpy==1.23 pyzmq requests testresources
+        cython elephant mpi4py numpy==1.23 pyzmq requests testresources \
+	flask flask-cores gunicorn
 
 #
 # STEP 5 - cloning github repos
