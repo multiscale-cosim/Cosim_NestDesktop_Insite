@@ -213,7 +213,6 @@ cd $CO_SIM_INSITE
 git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
 
 cd insite
-git checkout feature/cosim_compat
 
 mkdir build_access_node
 cd build_access_node
