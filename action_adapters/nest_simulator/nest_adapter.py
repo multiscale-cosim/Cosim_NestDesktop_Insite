@@ -32,6 +32,9 @@ from EBRAINS_ConfigManager.global_configurations_manager.xml_parsers.configurati
 from EBRAINS_ConfigManager.workflow_configurations_manager.xml_parsers.xml2class_parser import Xml2ClassParser
 from EBRAINS_InterscaleHUB.Interscale_hub.interscalehub_enums import DATA_EXCHANGE_DIRECTION
 
+# NOTE: import dependent on scriptname from Nest Desktop
+from userland.models.nest_simulator.nd_spike_activity_test import configure_nest
+
 import nest
 import nest.raster_plot
 import matplotlib.pyplot as plt
@@ -132,8 +135,8 @@ class NESTAdapter:
         # NOTE: dict b --> network addresses
         addresses = {"record_to": self.__interscalehub_nest_to_tvb_address,
                      "stimulus_source":self.__interscalehub_tvb_to_nest_address}
-        # NOTE: import dependent on scriptname from Nest Desktop
-        from userland.models.nest_simulator.nd_spike_activity_test import configure_nest
+        # configure with the settings defined in script received from
+        # NEST Desktop
         self.__nest_spike_generator, self.__nest_spike_recorder = \
             configure_nest(nest, addresses)
         # NOTE: time_synch from 'setup_result_directories.py'
