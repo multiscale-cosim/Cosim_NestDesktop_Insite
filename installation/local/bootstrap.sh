@@ -213,17 +213,17 @@ cd $CO_SIM_INSITE
 git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
 
 cd insite
-git checkout feature/cosim_compat
+git checkout master
 
 mkdir build_access_node
 cd build_access_node
 cmake ../access-node -DBUILD_SHARED_LIBS=OFF
-make -j 3
+make -j 4
 
 cd ..
 mkdir build_nest_module
 cd build_nest_module
 cmake -Dwith-nest=/home/vagrant/multiscale-cosim/nest/bin/nest-config ../nest-module/src -DSPDLOG_INSTALL=ON
-make -j 3 install
+make -j 4 install
 #
 echo "SETUP DONE!"
