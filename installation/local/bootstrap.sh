@@ -67,8 +67,8 @@ echo "1" | sudo update-alternatives --config mpirun 1>/dev/null 2>&1 # --> choos
 #
 # STEP 2.4 - install NEST Desktop (and dependencies for NEST Server)
 #
-sudo python3 -m pip install nest-desktop==3.2
-# sudo python3 -m pip install restrictedPython gunicorn flask flask-cors
+sudo python3 -m pip install nest-desktop==3.3.0a1
+sudo python3 -m pip install restrictedpython gunicorn flask flask-cors
 
 #
 # STEP 3 - install python packages for the TVB-NEST use-case
@@ -80,7 +80,7 @@ sudo python3 -m pip install nest-desktop==3.2
 pip install --no-cache --target=${CO_SIM_SITE_PACKAGES} \
         tvb-contrib==2.2 tvb-data==2.0 tvb-gdist==2.1 tvb-library==2.2 \
         cython elephant mpi4py numpy==1.23 pyzmq requests testresources \
-	flask flask-cores gunicorn
+	flask flask-cors gunicorn
 
 #
 # STEP 5 - cloning github repos
