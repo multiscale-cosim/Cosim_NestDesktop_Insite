@@ -39,6 +39,7 @@ cd ${CO_SIM_ROOT_PATH}
 CO_SIM_SITE_PACKAGES=${CO_SIM_ROOT_PATH}/site-packages
 CO_SIM_NEST_BUILD=${CO_SIM_ROOT_PATH}/nest-build
 CO_SIM_NEST=${CO_SIM_ROOT_PATH}/nest
+NEST_SRC_CODE=${CO_SIM_ROOT_PATH}/nest-src
 CO_SIM_INSITE=${CO_SIM_ROOT_PATH}/insite
 
 #
@@ -65,45 +66,62 @@ echo "1" | sudo update-alternatives --config mpi 1>/dev/null 2>&1 # --> choosing
 echo "1" | sudo update-alternatives --config mpirun 1>/dev/null 2>&1 # --> choosing mpirun
 
 #
-# STEP 2.4 - install NEST Desktop (and dependencies for NEST Server)
+# STEP 3 - install NEST Desktop (and dependencies for NEST Server)
 #
-sudo python3 -m pip install nest-desktop==3.3.0a1
-sudo python3 -m pip install restrictedpython gunicorn flask flask-cors
+pip install nest-desktop==3.3.0a1 \
+	flask flask-cors gunicorn
 
-#
-# STEP 3 - install python packages for the TVB-NEST use-case
-#
 #
 # STEP 4 - TVB
 #
 # NOTE: Specific versions are required for some packages
 pip install --no-cache --target=${CO_SIM_SITE_PACKAGES} \
         tvb-contrib==2.2 tvb-data==2.0 tvb-gdist==2.1 tvb-library==2.2 \
-        cython elephant mpi4py numpy==1.23 pyzmq requests testresources \
-	flask flask-cors gunicorn
+        cython elephant mpi4py numpy==1.23 pyzmq requests testresources
 
 #
-# STEP 5 - cloning github repos
+# STEP 5 - Install Insite
+#
+sudo apt-get install -y libssl-dev
+mkdir -p $CO_SIM_INSITE
+cd $CO_SIM_INSITE
+git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
+
+cd insite
+
+mkdir build_access_node
+cd build_access_node
+cmake ../access-node -DBUILD_SHARED_LIBS=OFF
+make -j 3
+
+cd ..
+mkdir build_nest_module
+cd build_nest_module
+cmake -Dwith-nest=/home/vagrant/multiscale-cosim/nest/bin/nest-config ../nest-module/src -DSPDLOG_INSTALL=ON
+make -j 3 install
+#	
+
+#
+# STEP 6 - cloning cosim github repos
 #
 git clone --recurse-submodules --jobs 4 https://github.com/${GIT_DEFAULT_NAME}/Cosim_NestDesktop_Insite.git
 
 #
-# STEP 6 - NEST compilation
+# STEP 7 - NEST compilation
 # International Neuroinformatics Coordinating Facility (INCF)
 # https://github.com/INCF/MUSIC
 # https://github.com/INCF/libneurosim
+git clone https://github.com/nest/nest-simulator.git ${NEST_SRC_CODE}
 
 # Cython
 export PATH=${CO_SIM_SITE_PACKAGES}/bin:${PATH}
 export PYTHONPATH=${CO_SIM_SITE_PACKAGES}:${PYTHONPATH:+:$PYTHONPATH}
 
-mkdir -p ${CO_SIM_NEST_BUILD}
-mkdir -p ${CO_SIM_NEST}
+mkdir -p ${CO_SIM_NEST_BUILD}; cd ${CO_SIM_NEST_BUILD}
 
-cd ${CO_SIM_NEST_BUILD}
 cmake \
     -DCMAKE_INSTALL_PREFIX:PATH=${CO_SIM_NEST} \
-    ${CO_SIM_ROOT_PATH}/Cosim_NestDesktop_Insite/nest-simulator/ \
+    ${NEST_SRC_CODE}/ \
     -Dwith-mpi=ON \
     -Dwith-openmp=ON \
     -Dwith-readline=ON \
@@ -113,12 +131,12 @@ cmake \
     -DPYTHON_INCLUDE_DIR=/usr/include/python3.10 \
     -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.10.so
 
-make -j 3
+make -j 4
 make install
 cd ${CO_SIM_ROOT_PATH}
 
 #
-# STEP 7 - WORK-AROUNDs (just in case)
+# STEP 8 - WORK-AROUNDs (just in case)
 #
 # removing typing.py as work-around for pylab on run-time
 rm -f ${CO_SIM_SITE_PACKAGES}/typing.py
@@ -148,7 +166,7 @@ done
 fi
 
 #
-# STEP 8 - Generating the .source file based on ENV variables
+# STEP 9 - Generating the .source file based on ENV variables
 #
 NEST_PYTHON_PREFIX=`find ${CO_SIM_NEST} -name site-packages`
 CO_SIM_USE_CASE_ROOT_PATH=${CO_SIM_ROOT_PATH}/Cosim_NestDesktop_Insite
@@ -205,24 +223,4 @@ cat <<.EOKF >${CO_SIM_ROOT_PATH}/kill_co_sim_PIDs.sh
 for co_sim_PID in \`ps aux | grep Cosim_NestDesktop_Insite | sed 's/user//g' | sed 's/^ *//g' | cut -d" " -f 1\`; do kill -9 \$co_sim_PID; done
 .EOKF
 
-#
-# STEP 10 - Install Insite
-sudo apt-get install -y libssl-dev
-mkdir -p $CO_SIM_INSITE
-cd $CO_SIM_INSITE
-git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
-
-cd insite
-
-mkdir build_access_node
-cd build_access_node
-cmake ../access-node -DBUILD_SHARED_LIBS=OFF
-make -j 3
-
-cd ..
-mkdir build_nest_module
-cd build_nest_module
-cmake -Dwith-nest=/home/vagrant/multiscale-cosim/nest/bin/nest-config ../nest-module/src -DSPDLOG_INSTALL=ON
-make -j 3 install
-#
 echo "SETUP DONE!"
