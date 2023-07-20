@@ -32,8 +32,7 @@ GIT_DEFAULT_NAME=${2:-${GIT_DEFAULT_NAME}}
 #
 CO_SIM_ROOT_PATH=${BASELINE_PATH}/${GIT_DEFAULT_NAME}
 
-mkdir -p ${CO_SIM_ROOT_PATH}
-cd ${CO_SIM_ROOT_PATH}
+mkdir -p ${CO_SIM_ROOT_PATH}; cd ${CO_SIM_ROOT_PATH}
 
 # CO_SIM_REPOS=${CO_SIM_ROOT_PATH}/cosim-repos
 CO_SIM_SITE_PACKAGES=${CO_SIM_ROOT_PATH}/site-packages
@@ -83,20 +82,17 @@ pip install --no-cache --target=${CO_SIM_SITE_PACKAGES} \
 # STEP 5 - Install Insite
 #
 sudo apt-get install -y libssl-dev
-mkdir -p $CO_SIM_INSITE
-cd $CO_SIM_INSITE
+mkdir -p $CO_SIM_INSITE; cd $CO_SIM_INSITE
 git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
 
 cd insite
 
-mkdir build_access_node
-cd build_access_node
+mkdir build_access_node; cd build_access_node
 cmake ../access-node -DBUILD_SHARED_LIBS=OFF
 make -j 4
 
 cd ..
-mkdir build_nest_module
-cd build_nest_module
+mkdir build_nest_module; cd build_nest_module
 cmake -Dwith-nest=/home/vagrant/multiscale-cosim/nest/bin/nest-config ../nest-module/src -DSPDLOG_INSTALL=ON
 make -j 4 install
 #	
