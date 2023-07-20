@@ -94,12 +94,12 @@ make -j 4
 cd ..
 mkdir build_nest_module; cd build_nest_module
 cmake -Dwith-nest=/home/vagrant/multiscale-cosim/nest/bin/nest-config ../nest-module/src -DSPDLOG_INSTALL=ON
-make -j 4 install
-#	
+make -j 4 install	
 
 #
 # STEP 6 - cloning cosim github repos
 #
+cd ${CO_SIM_ROOT_PATH}
 git clone --recurse-submodules --jobs 4 https://github.com/${GIT_DEFAULT_NAME}/Cosim_NestDesktop_Insite.git
 
 #
