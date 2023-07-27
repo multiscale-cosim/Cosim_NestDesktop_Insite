@@ -109,7 +109,7 @@ git clone --recurse-submodules --jobs 4 https://github.com/${GIT_DEFAULT_NAME}/C
 git clone https://github.com/nest/nest-simulator.git
 cd nest-simulator
 # 9cb3cb: Merge pull request from VRGroupRWTH/feature/device_label (https://github.com/nest/nest-simulator/commit/9cb3cb2ec1cc76e278ed7e9a8850609fdb443cae) 
-# Needed until NEST v3.6 release to incorporate the aforementioned pull request.
+# TODO: Needed until NEST v3.6 release to incorporate the aforementioned pull request.
 git checkout 9cb3cb
 cd ..
 
