@@ -37,8 +37,7 @@ mkdir -p ${CO_SIM_ROOT_PATH}; cd ${CO_SIM_ROOT_PATH}
 # CO_SIM_REPOS=${CO_SIM_ROOT_PATH}/cosim-repos
 CO_SIM_SITE_PACKAGES=${CO_SIM_ROOT_PATH}/site-packages
 CO_SIM_NEST_BUILD=${CO_SIM_ROOT_PATH}/nest-build
-CO_SIM_NEST=${CO_SIM_ROOT_PATH}/nest
-NEST_SRC_CODE=${CO_SIM_ROOT_PATH}/nest-src
+CO_SIM_NEST=${CO_SIM_ROOT_PATH}/nest-installed
 CO_SIM_INSITE=${CO_SIM_ROOT_PATH}/insite
 
 #
@@ -107,17 +106,22 @@ git clone --recurse-submodules --jobs 4 https://github.com/${GIT_DEFAULT_NAME}/C
 # International Neuroinformatics Coordinating Facility (INCF)
 # https://github.com/INCF/MUSIC
 # https://github.com/INCF/libneurosim
-git clone https://github.com/nest/nest-simulator.git ${NEST_SRC_CODE}
+git clone https://github.com/nest/nest-simulator.git
+cd nest-simulator
+# 9cb3cb: Merge pull request from VRGroupRWTH/feature/device_label (https://github.com/nest/nest-simulator/commit/9cb3cb2ec1cc76e278ed7e9a8850609fdb443cae) 
+# TODO: Needed until NEST v3.6 release to incorporate the aforementioned pull request.
+git checkout 9cb3cb
+cd ..
 
 # Cython
 export PATH=${CO_SIM_SITE_PACKAGES}/bin:${PATH}
 export PYTHONPATH=${CO_SIM_SITE_PACKAGES}:${PYTHONPATH:+:$PYTHONPATH}
 
-mkdir -p ${CO_SIM_NEST_BUILD}; cd ${CO_SIM_NEST_BUILD}
+mkdir -p ${CO_SIM_NEST} ${CO_SIM_NEST_BUILD}; cd ${CO_SIM_NEST_BUILD}
 
 cmake \
     -DCMAKE_INSTALL_PREFIX:PATH=${CO_SIM_NEST} \
-    ${NEST_SRC_CODE}/ \
+    ${CO_SIM_ROOT_PATH}/nest-simulator \
     -Dwith-mpi=ON \
     -Dwith-openmp=ON \
     -Dwith-readline=ON \
