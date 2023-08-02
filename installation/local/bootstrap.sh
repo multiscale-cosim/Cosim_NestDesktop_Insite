@@ -17,7 +17,7 @@ GIT_DEFAULT_NAME='multiscale-cosim'
 GIT_DEFAULT_NAME=${2:-${GIT_DEFAULT_NAME}}
 
 #
-# STEP 1 - setting up folder locations
+# STEP 1 - Setup folder locations
 #
 
 [ -d ${BASELINE_PATH} ] \
@@ -41,17 +41,37 @@ CO_SIM_NEST=${CO_SIM_ROOT_PATH}/nest-installed
 CO_SIM_INSITE=${CO_SIM_ROOT_PATH}/insite
 
 #
-# STEP 2 - installing linux packages
+# STEP 2 - Install linux packages
 #
-# STEP 2.1 - base packages
-sudo apt update
+# STEP 2.1 - Install base packages
+#
+
+# Update and upgrade installed base packages
+sudo apt update && sudo apt upgrade -y
+
+# Add repository for cmake 3.18+ (currently 3.27)
+sudo apt update && sudo apt install -y software-properties-common lsb-release
+sudo wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+sudo apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
+
+# Install packages
 sudo apt install -y build-essential cmake git python3 python3-pip
+
 #
 # STEP 2.2 - packages used by NEST, TVB and the use-case per se
-sudo apt install -y doxygen
-sudo apt install -y libboost-all-dev libgsl-dev libltdl-dev \
-                    libncurses-dev libreadline-dev
-sudo apt install -y mpich
+#
+# NEST: https://nest-simulator.readthedocs.io/en/v3.5/installation/noenv_install.html
+sudo apt install -y \
+        cython3 \
+        doxygen \
+        libboost-all-dev \
+        libgsl-dev \
+        libltdl-dev \
+        libncurses-dev \
+        libreadline-dev \
+        mpich
+
+sudo apt clean all
 
 #
 # STEP 2.3 - switching the default MPI installed packages to MPICH
@@ -64,79 +84,75 @@ echo "1" | sudo update-alternatives --config mpi 1>/dev/null 2>&1 # --> choosing
 echo "1" | sudo update-alternatives --config mpirun 1>/dev/null 2>&1 # --> choosing mpirun
 
 #
-# STEP 3 - install NEST Desktop (and dependencies for NEST Server)
-#
-pip install nest-desktop==3.3.0a1 \
-	flask flask-cors gunicorn
-
-#
-# STEP 4 - TVB
+# STEP 3 - Install Python packages of TVB, NEST Desktop (and dependencies for NEST Server)
 #
 # NOTE: Specific versions are required for some packages
 pip install --no-cache --target=${CO_SIM_SITE_PACKAGES} \
-        tvb-contrib==2.2 tvb-data==2.0 tvb-gdist==2.1 tvb-library==2.2 \
-        cython elephant mpi4py numpy==1.23 pyzmq requests testresources
+        cython \
+        elephant \
+        flask \
+        flask-cors \
+        gunicorn \
+        mpi4py \
+        nest-desktop==3.3.0a2 \
+        numpy==1.23 \
+        pyzmq \
+        requests \
+        restrictedpython \
+        testresources \
+        tvb-contrib==2.2 \
+        tvb-data==2.0 \
+        tvb-gdist==2.1 \
+        tvb-library==2.2
 
 #
-# STEP 5 - Install Insite
+# STEP 4 - Install NEST
 #
-sudo apt-get install -y libssl-dev
-mkdir -p $CO_SIM_INSITE; cd $CO_SIM_INSITE
-git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git
-
-cd insite
-
-mkdir build_access_node; cd build_access_node
-cmake ../access-node -DBUILD_SHARED_LIBS=OFF
-make -j 4
-
-cd ..
-mkdir build_nest_module; cd build_nest_module
-cmake -Dwith-nest=/home/vagrant/multiscale-cosim/nest/bin/nest-config ../nest-module/src -DSPDLOG_INSTALL=ON
-make -j 4 install	
-
-#
-# STEP 6 - cloning cosim github repos
-#
-cd ${CO_SIM_ROOT_PATH}
-git clone --recurse-submodules --jobs 4 https://github.com/${GIT_DEFAULT_NAME}/Cosim_NestDesktop_Insite.git
-
-#
-# STEP 7 - NEST compilation
 # International Neuroinformatics Coordinating Facility (INCF)
 # https://github.com/INCF/MUSIC
 # https://github.com/INCF/libneurosim
-git clone https://github.com/nest/nest-simulator.git
+
+git clone --single-branch https://github.com/nest/nest-simulator.git
 cd nest-simulator
-# 9cb3cb: Merge pull request from VRGroupRWTH/feature/device_label (https://github.com/nest/nest-simulator/commit/9cb3cb2ec1cc76e278ed7e9a8850609fdb443cae) 
+# 9cb3cb: Merge pull request from VRGroupRWTH/feature/device_label (https://github.com/nest/nest-simulator/commit/9cb3cb2ec1cc76e278ed7e9a8850609fdb443cae)
 # TODO: Needed until NEST v3.6 release to incorporate the aforementioned pull request.
 git checkout 9cb3cb
-cd ..
 
 # Cython
-export PATH=${CO_SIM_SITE_PACKAGES}/bin:${PATH}
-export PYTHONPATH=${CO_SIM_SITE_PACKAGES}:${PYTHONPATH:+:$PYTHONPATH}
+PATH=${CO_SIM_SITE_PACKAGES}/bin:${PATH}
+PYTHONPATH=${CO_SIM_SITE_PACKAGES}:${PYTHONPATH:+:$PYTHONPATH}
 
-mkdir -p ${CO_SIM_NEST} ${CO_SIM_NEST_BUILD}; cd ${CO_SIM_NEST_BUILD}
+mkdir -p ${CO_SIM_NEST_BUILD}; cd ${CO_SIM_NEST_BUILD}
 
-cmake \
-    -DCMAKE_INSTALL_PREFIX:PATH=${CO_SIM_NEST} \
+# https://nest-simulator.readthedocs.io/en/v3.5/installation/cmake_options.html#cmake-options
+cmake -DCMAKE_INSTALL_PREFIX:PATH=${CO_SIM_NEST} \
     ${CO_SIM_ROOT_PATH}/nest-simulator \
-    -Dwith-mpi=ON \
-    -Dwith-openmp=ON \
-    -Dwith-readline=ON \
-    -Dwith-ltdl=ON \
-    -Dcythonize-pynest=ON \
-    -DPYTHON_EXECUTABLE=/usr/bin/python3.10 \
-    -DPYTHON_INCLUDE_DIR=/usr/include/python3.10 \
-    -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.10.so
+    -Dwith-mpi=ON
 
-make -j 4
 make -j 4 install
 cd ${CO_SIM_ROOT_PATH}
 
 #
-# STEP 8 - WORK-AROUNDs (just in case)
+# STEP 5 - Install Insite
+#
+sudo apt install -y libssl-dev
+mkdir -p $CO_SIM_INSITE; cd $CO_SIM_INSITE
+git clone --recurse-submodules https://github.com/VRGroupRWTH/insite.git ${CO_SIM_INSITE}/insite
+
+cd ${CO_SIM_INSITE}/insite
+# git checkout v2.1.1
+
+mkdir build_access_node; cd build_access_node
+cmake ../access-node -DBUILD_SHARED_LIBS=OFF
+sudo make -j 4 install
+
+cd ${CO_SIM_INSITE}/insite
+mkdir build_nest_module; cd build_nest_module
+cmake -Dwith-nest=${CO_SIM_NEST}/bin/nest-config ../nest-module -DSPDLOG_INSTALL=ON
+sudo make -j 4 install
+
+#
+# STEP 6 - WORK-AROUNDs (just in case)
 #
 # removing typing.py as work-around for pylab on run-time
 rm -f ${CO_SIM_SITE_PACKAGES}/typing.py
@@ -151,22 +167,28 @@ rm -f ${CO_SIM_SITE_PACKAGES}/typing.py
 # even though numpy==1.21 coud have been installed,
 # other version could be still present and used
 
-if false; then
-continue_removing=1
-while [ ${continue_removing} -eq 1 ]
-do
-        pip list | grep numpy | grep -v "1.21" 1>/dev/null 2>&1
-        if [ $? -eq 0 ]
-        then
-                pip uninstall -y numpy 1>/dev/null 2>&1
-        else
-                continue_removing=0
-        fi
-done
-fi
+# if false; then
+# continue_removing=1
+# while [ ${continue_removing} -eq 1 ]
+# do
+#         pip list | grep numpy | grep -v "1.21" 1>/dev/null 2>&1
+#         if [ $? -eq 0 ]
+#         then
+#                 pip uninstall -y numpy 1>/dev/null 2>&1
+#         else
+#                 continue_removing=0
+#         fi
+# done
+# fi
 
 #
-# STEP 9 - Generating the .source file based on ENV variables
+# STEP 7 - Clone cosim github repos
+#
+cd ${CO_SIM_ROOT_PATH}
+git clone --recurse-submodules --jobs 4 https://github.com/${GIT_DEFAULT_NAME}/Cosim_NestDesktop_Insite.git
+
+#
+# STEP 8 - Generate the .source file based on ENV variables
 #
 NEST_PYTHON_PREFIX=`find ${CO_SIM_NEST} -name site-packages`
 CO_SIM_USE_CASE_ROOT_PATH=${CO_SIM_ROOT_PATH}/Cosim_NestDesktop_Insite
@@ -181,12 +203,15 @@ export CO_SIM_USE_CASE_ROOT_PATH=${CO_SIM_USE_CASE_ROOT_PATH}
 export CO_SIM_MODULES_ROOT_PATH=${CO_SIM_MODULES_ROOT_PATH}
 
 export PYTHONPATH=${CO_SIM_MODULES_ROOT_PATH}:${CO_SIM_SITE_PACKAGES}:${NEST_PYTHON_PREFIX}${SUFFIX_PYTHONPATH}
+export PATH=${CO_SIM_SITE_PACKAGES}/bin:${PATH}
 
-export PATH=${CO_SIM_NEST}/bin:${PATH}
+# Source env variables for NEST
+source ${CO_SIM_NEST}/bin/nest_vars.sh
 .EOSF
 
 #
-# STEP 9 - Generating the run_on_local.sh
+# STEP 9 - Generate the run_on_local.sh
+#
 cat <<.EORF > ${CO_SIM_ROOT_PATH}/run_on_local.sh
 
 # checking for already set CO_SIM_* env variables
@@ -213,6 +238,14 @@ export PYTHONPATH=\${PYTHONPATH}
 echo \$PATH | grep ${CO_SIM_NEST}/bin 1>/dev/null 2>&1
 [ \$? -eq 0 ] || export PATH=$CO_SIM_NEST/bin:\${PATH}
 
+# start NEST Desktop
+export NEST_DESKTOP_HOST=0.0.0.0
+nest-desktop start &
+
+# start Insite Access node
+insite-access-node &
+
+# start CoSim
 python3 \${CO_SIM_USE_CASE_ROOT_PATH}/main.py \\
     --global-settings \${CO_SIM_MODULES_ROOT_PATH}/EBRAINS_WorkflowConfigurations/general/global_settings.xml \\
     --action-plan \${CO_SIM_USE_CASE_ROOT_PATH}/userland/configs/local/plans/cosim_alpha_brunel_local.xml
