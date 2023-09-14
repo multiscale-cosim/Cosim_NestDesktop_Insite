@@ -87,7 +87,7 @@ echo "1" | sudo update-alternatives --config mpirun 1>/dev/null 2>&1 # --> choos
 # STEP 3 - Install Python packages of TVB, NEST Desktop (and dependencies for NEST Server)
 #
 # NOTE: Specific versions are required for some packages
-pip install --no-cache --target=${CO_SIM_SITE_PACKAGES} \
+pip install --no-cache --upgrade --target=${CO_SIM_SITE_PACKAGES} \
         cython \
         elephant \
         flask \
